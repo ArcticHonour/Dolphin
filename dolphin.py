@@ -1,10 +1,57 @@
+import subprocess
+import sys
+
+# List of required packages
+required_modules = [
+    "os",
+    "sys",
+    "time",
+    "colorama",
+    "subprocess",
+    "flask",
+    "tkinter",
+    "requests"
+]
+
+# Mapping for pip-installable modules
+installable_modules = {
+    "colorama": "colorama",
+    "flask": "flask",
+    "requests": "requests",
+    "tkinter": "tk"
+}
+
+# Check and install missing modules
+for module in required_modules:
+    try:
+        if module == "tkinter":
+            import tkinter
+        else:
+            __import__(module)
+    except ImportError:
+        if module in installable_modules:
+            print(f"[!] '{module}' not found. Installing...")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", installable_modules[module]])
+        else:
+            print(f"[x] Cannot auto-install module: {module}")
+            sys.exit(1)
+
+# Proceed with imports after all are ensured
 import os
 import sys
-from time import *
-from colorama import *
+from time import sleep
+from colorama import init as colorama_init
 import subprocess
 from flask import Flask, request, jsonify, send_from_directory, render_template_string
+import tkinter as tk
+from tkinter import scrolledtext, simpledialog
+import requests
+import time
 
+# Initialize colorama
+colorama_init()
+
+print("[✔] All modules are ready.")
 app = Flask(__name__)
 
 try:
